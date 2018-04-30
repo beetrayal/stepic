@@ -1,0 +1,128 @@
+val commandList = listOf("INFO",
+        "ADD",
+        "DELETE-WITH-KEY",
+        "DELETE-WITH-VALUE",
+        "PRINT",
+        "PRINT-WITH-KEY-FRAGMENT",
+        "PRINT-WITH-VALUE-FRAGMENT")
+var map: MutableMap<String, String> = mutableMapOf()
+
+fun printINFO() {
+    println("""---------------------------------------Command list------------------------------------------------
+        |INFO - for printing Command list again
+        |ADD key-value - for adding "value" with key "key" to the map
+        |DELETE-WITH-KEY key - for erasing element with key "key"
+        |DELETE-WITH-VALUE - for erasing element with value "value"
+        |PRINT - for printing the whole map
+        |PRINT-WITH-KEY-FRAGMENT fragment - for printing all key-value elements whose key has "fragment"
+        |PRINT-WITH-VALUE-FRAGMENT fragment - for printing all key-value elements whose value has "fragment"
+        |---------------------------------------------------------------------------------------------------
+    """.trimMargin())
+}
+
+fun printMap() {
+    val entries = map.entries
+    println("Map contains of:")
+    for (entry in entries) {
+        println("${entry.key}-${entry.value}")
+    }
+}
+
+fun printWithKeyFragment(fragment: String) {
+    if (isAnyArgs(fragment)) {
+        val keys = map.keys
+        println("Pairs whose key contains <$fragment>:")
+        for (key in keys) {
+            if (key.contains(fragment)) {
+                println("$key-${map[key]}")
+            }
+        }
+    } else {
+        printWrongInput()
+    }
+}
+
+fun printWithValueFragment(fragment: String) {
+    if (isAnyArgs(fragment)) {
+        val entries = map.entries
+        println("Pairs whose value contains <$fragment>:")
+        for (entry in entries) {
+            if (entry.value.contains(fragment)) {
+                println("${entry.key}-${entry.value}")
+            }
+        }
+    } else {
+        printWrongInput()
+    }
+}
+
+fun printWrongInput() {
+    println("ERROR: Wrong input. Check out command list with command INFO")
+}
+
+fun addPair(pair: String) {
+    if (isAnyArgs(pair)) {
+        val (key, value) = pair.split('-')
+        map.put(key, value)
+        println("Pair successfully added")
+    } else {
+        printWrongInput()
+    }
+}
+
+fun deleteWithKey(key: String) {
+    if (isAnyArgs(key)) {
+        map.remove(key)
+        println("Pair successfully deleted")
+    } else {
+        printWrongInput()
+    }
+}
+
+fun deleteWithValue(value: String) {
+    if (isAnyArgs(value)) {
+        val entries = map.entries
+        for (entry in entries) {
+            if (entry.value == value) {
+                map.remove(entry.key, entry.value)
+            }
+        }
+        println("Pairs successfully deleted")
+    } else {
+        printWrongInput()
+    }
+}
+
+fun isAnyArgs(arg: String): Boolean {
+    return arg != "<NO_ARGS>"
+}
+
+fun performCommand(line: String?) {
+    if (line != null) {
+        val deformedLine = line + " <NO_ARGS>" + " <NO_ARGS>"
+        val (command, arg) = deformedLine.trim().split(' ')
+        if (!commandList.contains(command)) {
+            printWrongInput()
+            return
+        }
+
+        when (command) {
+            "INFO" -> printINFO()
+            "ADD" -> addPair(arg)
+            "DELETE-WITH-KEY" -> deleteWithKey(arg)
+            "DELETE-WITH-VALUE" -> deleteWithValue(arg)
+            "PRINT" -> printMap()
+            "PRINT-WITH-KEY-FRAGMENT" -> printWithKeyFragment(arg)
+            "PRINT-WITH-VALUE-FRAGMENT" -> printWithValueFragment(arg)
+        }
+    }
+}
+
+fun main(args: Array<String>) {
+    printINFO()
+
+    while (true) {
+        val command = readLine()
+        performCommand(command)
+    }
+}
